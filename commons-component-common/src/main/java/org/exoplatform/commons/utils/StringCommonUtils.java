@@ -16,15 +16,10 @@
  */
 package org.exoplatform.commons.utils;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -35,8 +30,6 @@ import java.util.zip.GZIPOutputStream;
 public class StringCommonUtils {
 
   private static final int BUFFER_SIZE = 32;
-
-  private static final Log LOG                = ExoLogger.getLogger(StringCommonUtils.class);
 
   public static InputStream compress(String string) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream(string.length());
@@ -66,25 +59,5 @@ public class StringCommonUtils {
       is.close();
       buffer.close();
     }
-  }
-
-  /**
-   * Substitute web links in a text with the equivalent html tags
-   * @param text - to extract web links
-   * @return html code in which all web links are substituted by <a> tag
-   */
-  public static String extractWebLinkFromText (String text) {
-    Pattern calendarPattern = Pattern.compile("(?i)\\b((?:https?://|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:\'\".,<>???“”‘’]))");
-    try {
-      Matcher matcher = calendarPattern.matcher(text);
-      if (matcher.find()) {
-        return matcher.replaceAll("<a href=\"$1\" target=\"_blank\">$1</a>");
-      }
-    } catch (Exception e) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("Exception occurs when matching event description with web link patterns",e);
-      }
-    }
-    return text;
   }
 }
