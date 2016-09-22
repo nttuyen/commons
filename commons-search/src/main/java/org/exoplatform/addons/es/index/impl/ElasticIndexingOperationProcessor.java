@@ -204,7 +204,7 @@ public class ElasticIndexingOperationProcessor extends IndexingOperationProcesso
             bulkRequest += elasticContentRequestBuilder.getDeleteDocumentRequestContent((ElasticIndexingServiceConnector) getConnectors().get(deleteIndexQueue.getEntityType()),
                                                                                         deleteIndexQueue.getEntityId());
           } catch(Exception e) {
-            LOG.warn("Error while *deleting* index of entity, type = " + entityType + ", id =" + (deleteIndexQueue == null ? null : deleteIndexQueue.getEntityId()) + ", cause:", e);
+            LOG.warn("Error while *deleting* index entry of entity, type = " + entityType + ", id =" + (deleteIndexQueue == null ? null : deleteIndexQueue.getEntityId()) + ", cause:", e);
           }
 
           // Delete added indexation operation from queue even if the request fails
@@ -239,7 +239,7 @@ public class ElasticIndexingOperationProcessor extends IndexingOperationProcesso
             bulkRequest += elasticContentRequestBuilder.getCreateDocumentRequestContent((ElasticIndexingServiceConnector) getConnectors().get(createIndexQueue.getEntityType()),
                                                                                         createIndexQueue.getEntityId());
           } catch(Exception e) {
-            LOG.warn("Error while *creating* index of entity, type = " + entityType + ", id =" + (createIndexQueue == null ? null : createIndexQueue.getEntityId()) + ", cause:", e);
+            LOG.warn("Error while *creating* index entry of entity, type = " + entityType + ", id =" + (createIndexQueue == null ? null : createIndexQueue.getEntityId()) + ", cause:", e);
           }
 
           // Delete added indexation operation from queue even if the request fails
@@ -270,7 +270,7 @@ public class ElasticIndexingOperationProcessor extends IndexingOperationProcesso
             bulkRequest += elasticContentRequestBuilder.getUpdateDocumentRequestContent((ElasticIndexingServiceConnector) getConnectors().get(updateIndexQueue.getEntityType()),
                                                                                         updateIndexQueue.getEntityId());
           } catch(Exception e) {
-            LOG.warn("Error while *updating* index of entity, type = " + entityType + ", id =" + (updateIndexQueue == null ? null : updateIndexQueue.getEntityId()) + ", cause:", e);
+            LOG.warn("Error while *updating* index entry of entity, type = " + entityType + ", id =" + (updateIndexQueue == null ? null : updateIndexQueue.getEntityId()) + ", cause:", e);
           }
 
           // Delete added indexation operation from queue even if the request fails

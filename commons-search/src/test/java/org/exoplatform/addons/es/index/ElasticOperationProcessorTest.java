@@ -16,16 +16,31 @@
 */
 package org.exoplatform.addons.es.index;
 
-import org.exoplatform.addons.es.client.ElasticContentRequestBuilder;
-import org.exoplatform.addons.es.client.ElasticIndexingAuditTrail;
-import org.exoplatform.addons.es.client.ElasticIndexingClient;
-import org.exoplatform.addons.es.dao.IndexingOperationDAO;
-import org.exoplatform.addons.es.domain.Document;
-import org.exoplatform.addons.es.domain.IndexingOperation;
-import org.exoplatform.addons.es.domain.OperationType;
-import org.exoplatform.addons.es.index.impl.ElasticIndexingOperationProcessor;
-import org.exoplatform.addons.es.index.impl.ElasticIndexingServiceConnector;
-import org.exoplatform.commons.persistence.impl.EntityManagerService;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +51,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import org.exoplatform.addons.es.client.ElasticContentRequestBuilder;
+import org.exoplatform.addons.es.client.ElasticIndexingAuditTrail;
+import org.exoplatform.addons.es.client.ElasticIndexingClient;
+import org.exoplatform.addons.es.dao.IndexingOperationDAO;
+import org.exoplatform.addons.es.domain.Document;
+import org.exoplatform.addons.es.domain.IndexingOperation;
+import org.exoplatform.addons.es.domain.OperationType;
+import org.exoplatform.addons.es.index.impl.ElasticIndexingOperationProcessor;
+import org.exoplatform.addons.es.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.commons.persistence.impl.EntityManagerService;
 
 /**
  * Created by The eXo Platform SAS
@@ -240,6 +256,38 @@ public class ElasticOperationProcessorTest {
     orderRequestBuilder.verify(elasticContentRequestBuilder).getUpdateDocumentRequestContent(elasticIndexingServiceConnector, "3");
     //Then no more interaction with builder
     verifyNoMoreInteractions(elasticContentRequestBuilder);
+  }
+
+  @Test
+  public void process_ifAllOperationsInQueue_requestShouldContinueOnException() throws ParseException {
+    //Given
+    elasticIndexingOperationProcessor.getConnectors().put("post1", elasticIndexingServiceConnector);
+    elasticIndexingOperationProcessor.getConnectors().put("post2", elasticIndexingServiceConnector);
+    elasticIndexingOperationProcessor.getConnectors().put("post3", elasticIndexingServiceConnector);
+
+    List<IndexingOperation> indexingOperations = new ArrayList<>();
+
+    IndexingOperation delete = new IndexingOperation("1","post1",OperationType.DELETE);
+    delete.setId(2L);
+    indexingOperations.add(delete);
+
+    IndexingOperation create = new IndexingOperation("2","post2",OperationType.CREATE);
+    create.setId(1L);
+    indexingOperations.add(create);
+
+    IndexingOperation update = new IndexingOperation("3","post3",OperationType.UPDATE);
+    update.setId(3L);
+    indexingOperations.add(update);
+
+    //When an exception is thrown during process
+    doThrow(new RuntimeException("Fake error")).when(elasticContentRequestBuilder).getDeleteDocumentRequestContent(elasticIndexingServiceConnector, "1");
+    when(indexingOperationDAO.findAllFirst(anyInt())).thenReturn(indexingOperations);
+    elasticIndexingOperationProcessor.process();
+
+    //Then Operation C and U was called
+    verify(elasticContentRequestBuilder).getDeleteDocumentRequestContent(any(ElasticIndexingServiceConnector.class), eq("1"));
+    verify(elasticContentRequestBuilder).getCreateDocumentRequestContent(any(ElasticIndexingServiceConnector.class), eq("2"));
+    verify(elasticContentRequestBuilder).getUpdateDocumentRequestContent(any(ElasticIndexingServiceConnector.class), eq("3"));
   }
 
   //test the result of operation processing on the operation still in queue
