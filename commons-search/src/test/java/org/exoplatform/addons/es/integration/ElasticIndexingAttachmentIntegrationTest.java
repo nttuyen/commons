@@ -113,11 +113,7 @@ public class ElasticIndexingAttachmentIntegrationTest extends BaseIntegrationTes
     //When
     elasticIndexingClient.sendCUDRequest(bulkRequest);
 
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    node.client().admin().indices().prepareRefresh().execute().actionGet();
 
     elasticIndexingClient.sendDeleteAllDocsOfTypeRequest("test", "attachment");
     node.client().admin().indices().prepareRefresh().execute().actionGet();
