@@ -197,8 +197,8 @@
           $editable.data('mentionsInput').mentionTpl = this.options.renderItem;
         } else {
           $editable.data('mentionsInput').mentionTpl = function(mention) {
-            var tpl = '<span data-mention="' + mention.uid + '">' + mention.value + 
-            '<i class="uiIconClose uiIconLightGray" onclick="this.parentNode.parentNode.removeChild(this.parentNode)"> </i></span>';
+            var tpl = '<span data-mention="' + mention.uid + '" class="mention-item" contenteditable="false">' + mention.value + 
+            '<a href="javascript:void(0)" class="remove" onclick="this.parentNode.parentNode.removeChild(this.parentNode)">×</a></span>';
             return tpl;
           }
         }
