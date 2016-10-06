@@ -21,7 +21,7 @@
  *                      'tag'   - create selectize component
  *                      'mix'  -  create jquery.mention component, this is the default
  *      
- *      showAvatar   - boolean that decide if avatar is shown in the autocomplete menu. Default: true      
+ *      showAvatar   - boolean that decide if avatar is shown in the autocomplete menu. Default: false
  *      
  *      source:     data source of the autocomplete
  *      
@@ -142,7 +142,7 @@
       type : type.MIX,
       source : [],
       sourceProviders : [],
-      showAvatar : true
+      showAvatar : false
     },
     _create : function() {
       $input = this.element;
@@ -221,9 +221,6 @@
         }
         if (!this.options.searchField) {
           this.options.searchField = [this.options.labelField];
-        }
-        if (this.options.create === null) {
-          this.options.create = true;
         }
 
         if (this.options.selectedItems) {
