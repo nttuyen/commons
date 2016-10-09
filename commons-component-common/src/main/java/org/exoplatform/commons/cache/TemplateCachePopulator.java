@@ -22,7 +22,7 @@ public class TemplateCachePopulator implements Startable {
 
   List<String>                templates;
 
-  PortalContainer container;
+  PortalContainer             container;
 
   public TemplateCachePopulator(TemplateService templateService, PortalContainer container, InitParams initParams) {
     this.templateService = templateService;
@@ -34,7 +34,7 @@ public class TemplateCachePopulator implements Startable {
     resolver.addResourceResolver(new ServletResourceResolver(container.getPortalContext().getContext("/eXoResources"),
                                                              "resources:"));
     ValuesParam valuesParam = initParams.getValuesParam("templates");
-    if(valuesParam != null) {
+    if (valuesParam != null) {
       templates = valuesParam.getValues();
     }
 
@@ -42,31 +42,42 @@ public class TemplateCachePopulator implements Startable {
   }
 
   private void init() {
+    if (templates != null && !templates.isEmpty()) {
+      int middleOfTemplates = templates.size() / 2;
+      final List<String> firstPartOfTemplates = templates.subList(0, middleOfTemplates);
+      final List<String> secondPartOfTemplates = templates.subList(middleOfTemplates, templates.size());
+
+      executeCacheTemplates(firstPartOfTemplates, 1);
+      executeCacheTemplates(secondPartOfTemplates, 2);
+    }
+  }
+
+  private void executeCacheTemplates(final List<String> partOfTemplates, int i) {
     new Thread(new Runnable() {
       @Override
       public void run() {
-        if (templates != null && !templates.isEmpty()) {
-          Thread.currentThread().setContextClassLoader(container.getPortalClassLoader());
-          LOG.info("Start caching templates");
-          long started = System.currentTimeMillis();
-          for (String templateId : templates) {
-            try {
-              LOG.debug("Cache template {}", templateId);
-              templateService.getTemplate(templateId, resolver, true);
-            } catch (Exception e) {
-              LOG.debug("Error cache template {}, cause = {}", templateId, e.getMessage());
-            }
+        Thread.currentThread().setContextClassLoader(container.getPortalClassLoader());
+        LOG.info("Start caching templates");
+        long started = System.currentTimeMillis();
+        for (String templateId : partOfTemplates) {
+          try {
+            LOG.debug("Cache template {}", templateId);
+            templateService.getTemplate(templateId, resolver, true);
+          } catch (Exception e) {
+            LOG.debug("Error cache template {}, cause = {}", templateId, e.getMessage());
           }
-          long end = System.currentTimeMillis();
-          long timeSpent = (end - started) / 1000;
-          LOG.info("Templates cached in {} seconds", timeSpent);
         }
+        long end = System.currentTimeMillis();
+        long timeSpent = (end - started) / 1000;
+        LOG.info("Templates cached in {} seconds", timeSpent);
       }
-    }).start();
+    }, "TemplateCachePopulator - part " + i).start();
   }
-  
-  public void start() {}
 
-  public void stop() {}
+  public void start() {
+  }
+
+  public void stop() {
+  }
 
 }
