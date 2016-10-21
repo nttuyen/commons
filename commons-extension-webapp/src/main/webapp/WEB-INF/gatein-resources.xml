@@ -110,10 +110,10 @@
 			<module>jquery</module>
 		</depends>
 		<depends>
-			<module>jqueryMention</module>
+			<module>selectize2</module>
 		</depends>
 		<depends>
-			<module>selectize2</module>
+			<module>jqueryAtWho</module>
 		</depends>
 	</module>
 	<module>
@@ -156,6 +156,29 @@
 		</script>
 		<depends>
 			<module>jquery</module>
+		</depends>
+	</module>
+	<module>
+		<name>jqueryCaret</name>
+		<script>
+			<path>/javascript/eXo/suggester/jquery.caret.js</path>
+		</script>
+		<depends>
+			<module>jquery</module>
+			<as>jQuery</as>
+		</depends>
+	</module>
+	<module>
+		<name>jqueryAtWho</name>
+		<script>
+			<path>/javascript/eXo/suggester/jquery.atwho.js</path>
+		</script>
+		<depends>
+			<module>jquery</module>
+			<as>jQuery</as>
+		</depends>
+		<depends>
+			<module>jqueryCaret</module>
 		</depends>
 	</module>
 </gatein-resources>
