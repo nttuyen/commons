@@ -81,6 +81,8 @@ abstract public class HTMLSanitizer {
   private static final Pattern                                                ONE_CHAR                 = Pattern.compile(".?",
                                                                                                                          Pattern.DOTALL);
 
+  private static final Pattern                                                LINK_TARGET               = Pattern.compile("(?i)_blank|_self|_parent|_top");
+
   /** A policy definition that matches the minimal HTML that eXo allows. */
   public static final Function<HtmlStreamEventReceiver, HtmlSanitizer.Policy> POLICY_DEFINITION        = new HtmlPolicyBuilder()
                                                                                                        // Allow
@@ -122,6 +124,9 @@ abstract public class HTMLSanitizer {
                                                                                                                                 .onElements("a")
                                                                                                                                 .allowAttributes("name")
                                                                                                                                 .matching(NAME)
+                                                                                                                                .onElements("a")
+                                                                                                                                .allowAttributes("target")
+                                                                                                                                .matching(LINK_TARGET)
                                                                                                                                 .onElements("a")
                                                                                                                                 .allowAttributes("onfocus",
                                                                                                                                         "onblur",

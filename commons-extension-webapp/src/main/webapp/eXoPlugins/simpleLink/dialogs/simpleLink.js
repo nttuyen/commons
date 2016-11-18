@@ -30,6 +30,7 @@ CKEDITOR.dialog.add( 'simpleLinkDialog', function( editor ) {
                         },
                         commit: function(element) {
                             element.setAttribute("href", this.getValue());
+                            element.setAttribute("target", "_blank");
                         }
                     }
                 ]
